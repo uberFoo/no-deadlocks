@@ -1,9 +1,11 @@
 use std::cell::UnsafeCell;
+use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{LockResult, PoisonError, TryLockError, TryLockResult};
 use std::time::Instant;
 
 /// An instrumented version of `std::sync::RwLock`
+#[derive(Debug)]
 pub struct RwLock<T: ?Sized> {
     key: usize,
     poisoned: AtomicBool,
@@ -135,6 +137,7 @@ impl<T: ?Sized> RwLock<T> {
     }
 }
 
+#[derive(Debug)]
 pub struct RwLockReadGuard<'l, T: ?Sized> {
     inner: &'l RwLock<T>,
 }
@@ -153,10 +156,20 @@ impl<'l, T: ?Sized> Drop for RwLockReadGuard<'l, T> {
         }
     }
 }
+impl<'l, T> fmt::Display for RwLockReadGuard<'l, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad("RwLockReadGuard")
+    }
+}
+#[derive(Debug)]
 pub struct RwLockWriteGuard<'l, T: ?Sized> {
     inner: &'l RwLock<T>,
 }
-
+impl<'l, T> fmt::Display for RwLockWriteGuard<'_, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad("RwLockWriteGuard")
+    }
+}
 impl<'l, T: ?Sized> std::ops::Deref for RwLockWriteGuard<'l, T> {
     type Target = T;
     fn deref(&self) -> &<Self as std::ops::Deref>::Target {

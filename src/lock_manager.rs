@@ -151,6 +151,7 @@ pub struct LockManagerInner {
     pub(crate) locks: Map<usize, LockRepresentation>,
 }
 
+#[derive(Debug)]
 pub struct LockManager(UnsafeCell<LockManagerInner>);
 
 impl LockManagerInner {
@@ -303,7 +304,7 @@ impl LockManager {
             Ordering::Relaxed,
         ) {
             Err(manager) => unsafe {
-                Box::from_raw(new_manager);
+                let _ = Box::from_raw(new_manager);
                 (*manager).clone()
             },
             Ok(_) => unsafe { (*new_manager).clone() },
